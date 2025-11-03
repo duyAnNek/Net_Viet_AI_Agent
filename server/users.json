@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "email": "demo@company.com",
+    "passHash": "$2b$10$u6kpmCjTBLOHeJw13rNDVuq0mkJyLmctJahlZ71BjvpGB6kHv9pXO",
+    "name": "Demo User"
+  },
+  {
+    "id": 2,
+    "email": "nguyenduonglechi12a12dt@gmail.com",
+    "passHash": "$2b$10$8fl75f16ZgUDXajg1uRXo.64vxrPwd8iBNDsLhg6ktqO7CgLN4cN2",
+    "name": "ChiChi"
+  },
+  {
+    "id": 3,
+    "email": "nguyenduonglechi.1922@gmail.com",
+    "passHash": "$2b$10$Sj8E.xvoJIPM5pBCPWE9Deh3r7X.WYKXG7IPtNoNpAnadZ7YHe4fO",
+    "name": "ChiChii"
+  }
+]
