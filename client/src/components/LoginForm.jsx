@@ -8,9 +8,9 @@ export default function LoginForm({
   initialEmail = '',
   loading = false,
   enforceComplexOnLogin = true,
-  onSubmit,     // async ({ email, password })
-  onForgot,     // (email) => void
-  setError,     // (msg) => void
+  onSubmit,    
+  onForgot,     
+  setError,     
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

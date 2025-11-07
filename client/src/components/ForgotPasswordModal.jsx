@@ -8,7 +8,7 @@ const isPwComplex = (pw) => /[A-Za-z]/.test(pw || '') && /\d/.test(pw || '') && 
 const COOLDOWN_SEC = 30;
 
 export default function ForgotPasswordModal({ open, onClose, initialEmail = '' }) {
-  const [step, setStep] = useState('email'); // email -> otp -> reset -> done
+  const [step, setStep] = useState('email'); 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [ticket, setTicket] = useState('');
@@ -276,7 +276,6 @@ export default function ForgotPasswordModal({ open, onClose, initialEmail = '' }
 
         {step === 'done' && (
           <div className="text-center">
-            <div className="alert alert-success">Đổi mật khẩu thành công! Hãy đăng nhập.</div>
             <button className="btn btn-primary" onClick={onClose}>
               <i className="bi bi-box-arrow-in-right me-1"></i> Đóng
             </button>

@@ -160,7 +160,6 @@ app.post('/api/debug/seed', (req, res) => {
   res.json({ ok: true, employees: employees.length, products: products.length });
 });
 
-// Kiểm tra trùng tên đăng nhập / email (để UI gõ tới đâu check tới đó)
 app.post('/api/auth/check-availability', (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
@@ -176,7 +175,6 @@ app.post('/api/auth/check-availability', (req, res) => {
   }
 });
 
-// 1) Gửi mã OTP (đăng ký)
 app.post('/api/auth/email/start', async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
@@ -237,7 +235,6 @@ app.post('/api/auth/email/start', async (req, res) => {
   }
 });
 
-// 2) Xác thực mã OTP (đăng ký)
 app.post('/api/auth/email/verify', async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
@@ -277,14 +274,12 @@ app.post('/api/auth/email/verify', async (req, res) => {
   }
 });
 
-// 3) Hoàn tất signup (đăng ký)
 app.post('/api/auth/email/complete-signup', async (req, res) => {
   try {
     const { ticket, name, password } = req.body || {};
     if (!ticket) return res.status(400).json({ message: 'Thiếu ticket' });
     if (!name || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
 
-    // Ràng buộc mật khẩu: 6+ ký tự, có chữ và số
     if (!isStrongPassword(password)) {
       return res.status(400).json({ message: 'Mật khẩu phải tối thiểu 6 ký tự và gồm cả chữ lẫn số' });
     }
@@ -411,7 +406,6 @@ app.post('/api/auth/password/complete', async (req, res) => {
     const { ticket, newPassword } = req.body || {};
     if (!ticket || !newPassword) return res.status(400).json({ message: 'Thiếu thông tin' });
 
-    // Ràng buộc mật khẩu: 6+ ký tự, có chữ và số
     if (!isStrongPassword(newPassword)) {
       return res.status(400).json({ message: 'Mật khẩu phải tối thiểu 6 ký tự và gồm cả chữ lẫn số' });
     }
@@ -556,7 +550,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Endpoint check nhanh WS
 app.get('/api/ws-status', (_req, res) => {
   res.json({ clients: io.of('/').sockets.size || 0 });
 });

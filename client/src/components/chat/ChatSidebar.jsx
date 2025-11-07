@@ -5,19 +5,30 @@ export default function ChatSidebar({
   conversations, activeId, onSelect,
   onNew, onRename, onDelete, onClear,
   formatTime, fallbackTitle = 'LunaAssist',
-  focusSearchSignal = 0,       // <- số tăng để focus search
-  onOpenSearch,                // <- gọi từ rail: mở sidebar + focus search
+  focusSearchSignal = 0,
+  onOpenSearch,
 }) {
   const [search, setSearch] = useState('');
+  const [menuOpen, setMenuOpen] = useState(null);
   const inputRef = useRef(null);
+  const menuRef = useRef(null);
 
-  // Focus ô tìm khi có signal
   useEffect(() => {
     if (focusSearchSignal > 0) {
       inputRef.current?.focus();
       inputRef.current?.select();
     }
   }, [focusSearchSignal]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const list = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -30,9 +41,7 @@ export default function ChatSidebar({
 
   return (
     <>
-      {/* RAIL luôn hiện (desktop) */}
       <div className="sidebar-rail d-none d-lg-flex">
-        {/* Nút mở/đóng sidebar */}
         <button
           className="btn btn-light btn-rail"
           title={open ? 'Ẩn menu' : 'Mở menu'}
@@ -43,82 +52,129 @@ export default function ChatSidebar({
 
         <div className="rail-sep" />
 
-        {/* Search chats: mở sidebar + focus ô tìm */}
         <button
           className="btn btn-light btn-rail"
-          title="Search chats"
+          title="Tìm kiếm đoạn chat"
           onClick={() => onOpenSearch?.()}
         >
           <i className="bi bi-search"></i>
         </button>
       </div>
 
-      {/* Sidebar */}
       <aside className={`chat-sidebar-left ${open ? 'open' : 'collapsed'}`}>
         {open && (
-          <div className="sidebar-body p-3 pt-3 d-flex flex-column h-100">
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <div className="fw-bold d-flex align-items-center gap-2">
-                <i className="bi bi-magic text-primary"></i> LunaAssist
+          <div className="sidebar-body p-3 d-flex flex-column h-100">
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <div className="fw-bold d-flex align-items-center gap-2 text-primary">
+                <i className="bi bi-magic"></i> LunaAssist
               </div>
-              <div className="d-flex gap-2">
-                <button className="btn btn-outline-secondary btn-sm" onClick={() => onToggle(false)} title="Thu gọn">
-                  <i className="bi bi-chevron-left"></i>
-                </button>
-              </div>
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => onToggle(false)}
+                title="Thu gọn"
+              >
+                <i className="bi bi-chevron-left"></i>
+              </button>
             </div>
 
-            {/* Ô tìm kiếm */}
             <div className="sidebar-search mb-3">
-              <div className="input-group">
-                <span className="input-group-text"><i className="bi bi-search"></i></span>
+              <div className="input-group input-group-sm">
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-search text-muted"></i>
+                </span>
                 <input
                   ref={inputRef}
-                  className="form-control"
+                  type="text"
+                  className="form-control form-control-sm"
                   placeholder="Tìm kiếm đoạn chat..."
                   value={search}
-                  onChange={(e)=>setSearch(e.target.value)}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
             </div>
 
-            <button className="btn btn-primary w-100 mb-3 d-flex align-items-center justify-content-center gap-2" onClick={onNew}>
+            <button
+              className="btn btn-primary w-100 mb-3 d-flex align-items-center justify-content-center gap-2"
+              onClick={onNew}
+            >
               <i className="bi bi-plus-circle"></i> Đoạn chat mới
             </button>
 
-            <div className="chat-history flex-grow-1">
-              {list.map((c) => (
-                <div
-                  key={c.id}
-                  className={`history-item ${c.id === activeId ? 'active' : ''}`}
-                  onClick={() => onSelect(c.id)}
-                  title={c.title}
-                >
-                  <div className="d-flex align-items-start justify-content-between">
-                    <div className="me-2">
-                      <div className="title text-truncate">
-                        <i className="bi bi-chat-left-text me-1 text-primary"></i>
-                        {c.title || fallbackTitle}
+            <div className="chat-history flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
+              {list.length === 0 ? (
+                <div className="text-muted small text-center py-3">
+                  Không tìm thấy đoạn chat phù hợp.
+                </div>
+              ) : (
+                list.map((c) => (
+                  <div
+                    key={c.id}
+                    className={`history-item p-3 rounded-3 mb-2 position-relative ${
+                      c.id === activeId ? 'active' : ''
+                    }`}
+                    onClick={() => onSelect(c.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="d-flex justify-content-between align-items-start gap-2">
+                      <div className="flex-grow-1 text-truncate">
+                        <div className="d-flex align-items-center gap-1 text-truncate">
+                          <i className="bi bi-chat-left-text text-primary"></i>
+                          <span className="text-truncate">
+                            {c.title || fallbackTitle}
+                          </span>
+                        </div>
+                        <div className="small text-muted mt-1">
+                          {formatTime(c.updatedAt || c.createdAt)}
+                        </div>
                       </div>
-                      <div className="time small text-muted">{formatTime(c.updatedAt || c.createdAt)}</div>
-                    </div>
-                    <div className="actions d-flex gap-2">
-                      <button className="btn btn-outline-secondary btn-sm" title="Đổi tên" onClick={(e)=>{e.stopPropagation(); onRename(c.id);}}>
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button className="btn btn-outline-secondary btn-sm" title="Xóa" onClick={(e)=>{e.stopPropagation(); onDelete(c.id);}}>
-                        <i className="bi bi-trash3"></i>
-                      </button>
+
+                      <div className="dropdown" ref={menuRef}>
+                        <button
+                          className="btn btn-sm btn-link text-muted p-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMenuOpen(menuOpen === c.id ? null : c.id);
+                          }}
+                          title="Tùy chọn"
+                        >
+                          <i className="bi bi-three-dots-vertical"></i>
+                        </button>
+
+                        {menuOpen === c.id && (
+                          <div
+                            className="dropdown-menu show position-absolute end-0 mt-1 shadow-sm"
+                            style={{ zIndex: 1100, minWidth: '140px' }}
+                          >
+                            <button
+                              className="dropdown-item d-flex align-items-center gap-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onRename(c.id);
+                                setMenuOpen(null);
+                              }}
+                            >
+                              <i className="bi bi-pencil-square"></i> Đổi tên
+                            </button>
+                            <button
+                              className="dropdown-item d-flex align-items-center gap-2 text-danger"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(c.id);
+                                setMenuOpen(null);
+                              }}
+                            >
+                              <i className="bi bi-trash3"></i> Xóa
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              {!list.length && (
-                <div className="text-muted small">Không tìm thấy đoạn chat phù hợp.</div>
+                ))
               )}
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 mt-auto">
               <button className="btn btn-outline-secondary w-100" onClick={onClear}>
                 <i className="bi bi-trash me-1"></i> Xóa tất cả
               </button>
