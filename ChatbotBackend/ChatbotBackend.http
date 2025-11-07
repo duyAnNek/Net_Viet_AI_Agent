@@ -1,6 +1,0 @@
-@ChatbotBackend_HostAddress = http://localhost:5079
-
-GET {{ChatbotBackend_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
